@@ -8,8 +8,13 @@
   const hasCheckout = Boolean(config.checkoutUrl);
   const hasBooking = Boolean(config.bookingUrl);
   const hasRealEmail = Boolean(config.contactEmail && !/example\.com/i.test(config.contactEmail));
+  const lead = getLeadContext();
   const checkoutUrl = config.checkoutUrl || "index.html";
-  const bookingUrl = config.bookingUrl || (hasRealEmail ? `mailto:${contactEmail}?subject=${encodeURIComponent(`${productName} workflow review`)}` : "#next-step");
+  const bookingUrl =
+    config.bookingUrl ||
+    (hasRealEmail
+      ? `mailto:${contactEmail}?subject=${encodeURIComponent(mailSubject(productName, lead))}&body=${encodeURIComponent(mailBody(lead))}`
+      : "#next-step");
 
   document.title = `${productName} - Contractor Proposal Recovery System`;
   setText("[data-product-name]", productName);
@@ -52,5 +57,24 @@
 
   function formatMoney(value) {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(value) || 0);
+  }
+
+  function getLeadContext() {
+    const params = new URLSearchParams(window.location.search);
+    const company = params.get("company") || "";
+    const leadId = params.get("lead") || "";
+    return { company, leadId };
+  }
+
+  function mailSubject(name, context) {
+    return context.company ? `${name} workflow review - ${context.company}` : `${name} workflow review`;
+  }
+
+  function mailBody(context) {
+    const lines = ["Hi Filip,", "", "I would like to take a quick look at the ScopePilot workflow."];
+    if (context.company) lines.push("", `Company: ${context.company}`);
+    if (context.leadId) lines.push(`Lead: ${context.leadId}`);
+    lines.push("", "Thanks,");
+    return lines.join("\n");
   }
 })();
