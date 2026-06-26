@@ -7,7 +7,7 @@ window.SCOPEPILOT_CONFIG = {
   "monthlyPrice": 79,
   "checkoutUrl": "",
   "bookingUrl": "",
-  "contactEmail": "",
+  "contactEmail": "vyndanej66@gmail.com",
   "theme": {
     "primary": "#0f766e",
     "primaryDark": "#115e59",

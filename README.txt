@@ -14,4 +14,4 @@ Booking link:
 not configured
 
 Support contact:
-not configured
+vyndanej66@gmail.com
