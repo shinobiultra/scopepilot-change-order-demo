@@ -15,6 +15,9 @@
     (hasRealEmail
       ? `mailto:${contactEmail}?subject=${encodeURIComponent(mailSubject(productName, lead))}&body=${encodeURIComponent(mailBody(lead))}`
       : "#next-step");
+  const invoiceUrl = hasRealEmail
+    ? `mailto:${contactEmail}?subject=${encodeURIComponent(invoiceSubject(productName, lead))}&body=${encodeURIComponent(invoiceBody(setupPrice, lead))}`
+    : "#next-step";
 
   document.title = `${productName} - Contractor Proposal Recovery System`;
   setText("[data-product-name]", productName);
@@ -24,16 +27,18 @@
   setText("[data-offer-name]", config.offerName || "Contractor proposal recovery system");
   setText("[data-checkout-label]", hasCheckout ? `Start the ${setupPrice} setup` : "View demo");
   setText("[data-booking-label]", hasBooking || hasRealEmail ? "Book 10 minutes" : "Reply to sender");
+  setText("[data-invoice-label]", "Request invoice");
   setText(
     "[data-next-step-copy]",
     hasCheckout
       ? "Use the setup link to start, then send recent proposal and change-order examples during intake."
       : hasRealEmail
-        ? `Email ${contactEmail} or reply to the message that sent you this page and ask for the 10-minute workflow review.`
+        ? `Email ${contactEmail}, book a 10-minute workflow review, or request the ${setupPrice} setup invoice.`
         : "Reply to the message that sent you this page and ask for the 10-minute workflow review."
   );
   setHref("[data-checkout-link]", checkoutUrl);
   setHref("[data-booking-link]", bookingUrl);
+  setHref("[data-invoice-link]", invoiceUrl);
 
   const root = document.documentElement;
   if (config.theme && config.theme.primary) root.style.setProperty("--teal", config.theme.primary);
@@ -72,6 +77,18 @@
 
   function mailBody(context) {
     const lines = ["Hi Filip,", "", "I would like to take a quick look at the ScopePilot workflow."];
+    if (context.company) lines.push("", `Company: ${context.company}`);
+    if (context.leadId) lines.push(`Lead: ${context.leadId}`);
+    lines.push("", "Thanks,");
+    return lines.join("\n");
+  }
+
+  function invoiceSubject(name, context) {
+    return context.company ? `${name} setup invoice - ${context.company}` : `${name} setup invoice`;
+  }
+
+  function invoiceBody(price, context) {
+    const lines = ["Hi Filip,", "", `Please send the ${price} ScopePilot setup invoice.`];
     if (context.company) lines.push("", `Company: ${context.company}`);
     if (context.leadId) lines.push(`Lead: ${context.leadId}`);
     lines.push("", "Thanks,");
