@@ -2,7 +2,8 @@
   const storageKey = "scopepilot.jobs.v1";
   const activeKey = "scopepilot.activeJobId.v1";
   const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
-  const appConfig = normalizeConfig(window.SCOPEPILOT_CONFIG || {});
+  const leadContext = getLeadContext();
+  const appConfig = personalizeConfig(normalizeConfig(window.SCOPEPILOT_CONFIG || {}), leadContext);
 
   const today = new Date();
   const defaultValidUntil = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
@@ -613,6 +614,30 @@
       theme: config.theme || {},
       defaultJob: config.defaultJob || {}
     };
+  }
+
+  function personalizeConfig(config, context) {
+    if (!context.company) return config;
+    return {
+      ...config,
+      documentTitle: `${config.productName} demo for ${context.company}`,
+      defaultJob: {
+        ...config.defaultJob,
+        contractorName: context.company
+      }
+    };
+  }
+
+  function getLeadContext() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      company: cleanParam(params.get("company") || ""),
+      leadId: cleanParam(params.get("lead") || "")
+    };
+  }
+
+  function cleanParam(value) {
+    return String(value).replace(/\s+/g, " ").trim().slice(0, 120);
   }
 
   function mergeJobDefaults(base, overrides) {

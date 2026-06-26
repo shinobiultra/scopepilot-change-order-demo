@@ -9,7 +9,8 @@
   const hasBooking = Boolean(config.bookingUrl);
   const hasRealEmail = Boolean(config.contactEmail && !/example\.com/i.test(config.contactEmail));
   const lead = getLeadContext();
-  const checkoutUrl = config.checkoutUrl || "index.html";
+  const demoUrl = contextUrl("index.html", lead);
+  const checkoutUrl = config.checkoutUrl || demoUrl;
   const bookingUrl =
     config.bookingUrl ||
     (hasRealEmail
@@ -19,12 +20,31 @@
     ? `mailto:${contactEmail}?subject=${encodeURIComponent(invoiceSubject(productName, lead))}&body=${encodeURIComponent(invoiceBody(setupPrice, lead))}`
     : "#next-step";
 
-  document.title = `${productName} - Contractor Proposal Recovery System`;
+  document.title = lead.company
+    ? `${productName} for ${lead.company} - Contractor Proposal Recovery System`
+    : `${productName} - Contractor Proposal Recovery System`;
   setText("[data-product-name]", productName);
   setText("[data-product-subtitle]", subtitle);
   setText("[data-setup-price]", setupPrice);
   setText("[data-monthly-price]", monthlyPrice);
   setText("[data-offer-name]", config.offerName || "Contractor proposal recovery system");
+  setText("[data-lead-eyebrow]", lead.company ? `Prepared for ${lead.company}` : "For remodelers and trade contractors");
+  setText(
+    "[data-hero-lede]",
+    lead.company
+      ? `${productName} can give ${lead.company} a branded change-order workflow for field approvals, customer emails, and SMS follow-ups before unpaid work starts.`
+      : "A branded change-order workflow that turns field changes into approval packets, customer emails, and SMS follow-ups before unpaid work starts."
+  );
+  setText(
+    "[data-fit-heading]",
+    lead.company ? `For ${lead.company} when verbal approvals leak margin.` : "Teams where verbal approvals still leak margin."
+  );
+  setText(
+    "[data-fit-copy]",
+    lead.company
+      ? "Use the demo to see the approval packet a contractor can send when a customer says yes in the field but the paperwork has not caught up."
+      : "Remodelers, kitchen and bath contractors, HVAC, plumbing, electrical, roofing, and restoration shops with frequent field changes."
+  );
   setText("[data-checkout-label]", hasCheckout ? `Start the ${setupPrice} setup` : "View demo");
   setText("[data-booking-label]", hasBooking || hasRealEmail ? "Book 10 minutes" : "Reply to sender");
   setText("[data-invoice-label]", "Request invoice");
@@ -36,6 +56,7 @@
         ? `Email ${contactEmail}, book a 10-minute workflow review, or request the ${setupPrice} setup invoice.`
         : "Reply to the message that sent you this page and ask for the 10-minute workflow review."
   );
+  setHref("[data-demo-link]", demoUrl);
   setHref("[data-checkout-link]", checkoutUrl);
   setHref("[data-booking-link]", bookingUrl);
   setHref("[data-invoice-link]", invoiceUrl);
@@ -66,9 +87,21 @@
 
   function getLeadContext() {
     const params = new URLSearchParams(window.location.search);
-    const company = params.get("company") || "";
-    const leadId = params.get("lead") || "";
+    const company = cleanParam(params.get("company") || "");
+    const leadId = cleanParam(params.get("lead") || "");
     return { company, leadId };
+  }
+
+  function contextUrl(path, context) {
+    const params = new URLSearchParams();
+    if (context.leadId) params.set("lead", context.leadId);
+    if (context.company) params.set("company", context.company);
+    const query = params.toString();
+    return query ? `${path}?${query}` : path;
+  }
+
+  function cleanParam(value) {
+    return String(value).replace(/\s+/g, " ").trim().slice(0, 120);
   }
 
   function mailSubject(name, context) {
