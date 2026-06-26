@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="ScopePilot creates contractor change orders, customer emails, and approval packets in minutes.">
+    <title>ScopePilot - Change Order Pack Generator</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="config.js"></script>
+    <script defer src="icons.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#workspace" aria-label="ScopePilot home">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>
+            <strong>ScopePilot</strong>
+            <small>Change-order pack generator</small>
+          </span>
+        </a>
+        <nav class="top-actions" aria-label="Primary actions">
+          <button class="icon-btn ghost" id="newJobBtn" type="button" title="Start a blank job">
+            <i data-lucide="file-plus-2" aria-hidden="true"></i>
+            <span>New</span>
+          </button>
+          <button class="icon-btn ghost" id="saveJobBtn" type="button" title="Save this job in this browser">
+            <i data-lucide="save" aria-hidden="true"></i>
+            <span>Save</span>
+          </button>
+          <button class="icon-btn primary" id="printBtn" type="button" title="Print or save as PDF">
+            <i data-lucide="printer" aria-hidden="true"></i>
+            <span>PDF</span>
+          </button>
+        </nav>
+      </header>
+
+      <main id="workspace" class="workspace">
+        <aside class="left-rail" aria-label="Job library and offer">
+          <section class="panel library-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Pipeline</p>
+                <h1>Saved jobs</h1>
+              </div>
+              <button class="square-btn" id="exportBtn" type="button" title="Export saved jobs">
+                <i data-lucide="download" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div id="jobList" class="job-list" aria-live="polite"></div>
+            <label class="import-control">
+              <input id="importInput" type="file" accept="application/json">
+              <span class="square-btn" title="Import jobs"><i data-lucide="upload" aria-hidden="true"></i></span>
+              <span>Import JSON backup</span>
+            </label>
+          </section>
+
+          <section class="panel money-panel">
+            <p class="eyebrow">Paid offer</p>
+            <h2>$3,000 setup package</h2>
+            <p>Branded proposal and change-order system for remodelers who lose margin to verbal scope changes.</p>
+            <ul>
+              <li>Custom logo, terms, and fee structure.</li>
+              <li>Hosted private link for their crew.</li>
+              <li>Email and SMS follow-up templates.</li>
+            </ul>
+            <a class="text-link" href="SELL_NOW.md">Open sales plan</a>
+          </section>
+        </aside>
+
+        <section class="form-panel" aria-label="Job editor">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">Builder</p>
+              <h2>Change order details</h2>
+            </div>
+            <div class="status-pill" id="saveStatus">Draft</div>
+          </div>
+
+          <form id="jobForm" autocomplete="off">
+            <div class="grid two">
+              <label>
+                Contractor name
+                <input name="contractorName" required>
+              </label>
+              <label>
+                Customer name
+                <input name="customerName" required>
+              </label>
+              <label>
+                Project address
+                <input name="projectAddress" required>
+              </label>
+              <label>
+                Document type
+                <select name="documentType">
+                  <option>Change Order</option>
+                  <option>Proposal</option>
+                  <option>Allowance Reconciliation</option>
+                  <option>Emergency Work Authorization</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="grid two">
+              <label>
+                Original contract amount
+                <input name="contractAmount" type="number" min="0" step="100">
+              </label>
+              <label>
+                Requested by
+                <select name="requestedBy">
+                  <option>Customer</option>
+                  <option>Field condition</option>
+                  <option>Inspector</option>
+                  <option>Designer</option>
+                  <option>Contractor recommendation</option>
+                </select>
+              </label>
+              <label>
+                Quote valid until
+                <input name="validUntil" type="date">
+              </label>
+              <label>
+                Schedule impact, days
+                <input name="scheduleDays" type="number" min="0" step="1">
+              </label>
+            </div>
+
+            <label>
+              Scope summary
+              <textarea name="scopeSummary" rows="4"></textarea>
+            </label>
+
+            <label>
+              Exclusions or assumptions
+              <textarea name="exclusions" rows="3"></textarea>
+            </label>
+
+            <div class="line-items-head">
+              <div>
+                <p class="eyebrow">Pricing</p>
+                <h3>Cost lines</h3>
+              </div>
+              <button class="icon-btn secondary" id="addLineBtn" type="button" title="Add line item">
+                <i data-lucide="plus" aria-hidden="true"></i>
+                <span>Add line</span>
+              </button>
+            </div>
+            <div id="lineItems" class="line-items" aria-label="Cost line items"></div>
+
+            <div class="grid three">
+              <label>
+                Markup %
+                <input name="markupRate" type="number" min="0" max="200" step="1">
+              </label>
+              <label>
+                Tax %
+                <input name="taxRate" type="number" min="0" max="30" step="0.01">
+              </label>
+              <label>
+                Deposit %
+                <input name="depositRate" type="number" min="0" max="100" step="1">
+              </label>
+            </div>
+
+            <div class="grid two">
+              <label>
+                Payment terms
+                <textarea name="paymentTerms" rows="3"></textarea>
+              </label>
+              <label>
+                Approval instructions
+                <textarea name="approvalInstructions" rows="3"></textarea>
+              </label>
+            </div>
+          </form>
+        </section>
+
+        <section class="preview-column" aria-label="Generated pack">
+          <div class="preview-toolbar">
+            <div class="tabs" role="tablist" aria-label="Generated outputs">
+              <button class="tab active" type="button" data-tab="document">Document</button>
+              <button class="tab" type="button" data-tab="email">Email</button>
+              <button class="tab" type="button" data-tab="sms">SMS</button>
+            </div>
+            <button class="icon-btn ghost" id="copyBtn" type="button" title="Copy current output">
+              <i data-lucide="copy" aria-hidden="true"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+
+          <article class="preview-sheet" id="documentPreview"></article>
+          <article class="message-preview hidden" id="emailPreview"></article>
+          <article class="message-preview hidden" id="smsPreview"></article>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
